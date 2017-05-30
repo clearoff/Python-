@@ -46,13 +46,15 @@ class MysqlSynPipeline(object):
 
 	def do_insert(self, cursor, item):
 
+
 		insert_sql = """
-			insert into article_msg(url_object_id, article_name, url, pub_time, praise_num, tags)
-			values (%s, %s, %s, %s, %s, %s)
+			insert into article_msg(url_object_id, article_name, url, pub_time, praise_num, tags, comment_num, collect_num, content, front_image_url, front_image_path)
+			values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
 		"""
 		cursor.execute(insert_sql,(item["article_md5_url"],\
 				item["title"], item["article_url"], item["pub_time"],\
-				item["like_num"], item["tags"]))
+				item["like_num"], item["tags"], item["comment_num"],\
+				item["collect_num"], item["content"], item["front_image_url"], item["front_image_path"]))
 		#insert_sql, params = item.get_insert_sql()
 		##print "sql : ",insert_sql 
 		##print "parms :",params
@@ -104,9 +106,14 @@ class JsonWithEncodingPipeline(object):
 		self.file = codecs.open("article.json","wb",encoding="utf-8")
 	
 	def process_item(self, item, spider):
-		lines = json.dumps(dict(item),ensure_ascii=False)
-		lines = lines + '#######################################\n'
-		self.file.write(lines)
+		print "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
+		print item["title"]
+		print item["pub_time"]
+		print item["article_url"]
+		print item["article_md5_url"]
+		#lines = json.dumps(dict(item),ensure_ascii=False)
+		#lines = lines + '#######################################\n'
+		#self.file.write(lines)
 		return item 
 
 	def spider_closed(self, spider):
@@ -114,8 +121,8 @@ class JsonWithEncodingPipeline(object):
 
 class ArticleImagePipeline(ImagesPipeline):
 	def item_completed(self, results, item, info):
-		for ok, value in results:
-			image_file_path = value["path"]
-		print "image_path:",image_file_path
-		item["front_image_path"] = image_file_path
+		if "front_image_url" in item:
+			for ok, value in results:
+				image_file_path = value["path"]
+			item["front_image_path"] = image_file_path
 		return item 
