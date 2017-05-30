@@ -3,6 +3,7 @@ import scrapy
 import re 
 from scrapy.http import Request
 import urlparse 
+import datetime
 import sys
 from  ArticleSpider.items import ArticleItem
 from  ArticleSpider.comm import get_md5
@@ -51,6 +52,10 @@ class JobboleSpider(scrapy.Spider):
 		article_item['title'] = title 
 		article_item['front_image_url'] = [front_image_url] 
 		article_item['article_md5_url'] = get_md5(response.url)
+		try:
+			pubtime = datetime.datetime.strptime(create_date, "%Y/%m/%d").date()
+		except Exception as e:
+			pubtime = datetime.datetime.now().date()
 		article_item['pub_time'] = pubtime
 		article_item['article_url'] = response.url
 		article_item['like_num'] = like_num
